@@ -1,1 +1,32 @@
 <h1>Hello {{username}}</h1>
+
+{{ingredients}}
+
+<input type="text" id="add-ingredient">
+
+<script type="text/javascript">
+    $(document).ready(() => {
+        let enabled = true;
+        const ingredientInput = $('#add-ingredient');
+        ingredientInput.keypress(key => {
+            if (key.key === 'Enter') {
+                if (!enabled) return;
+                enabled = false;
+                const ingredient = ingredientInput.val();
+                console.log(ingredient)
+
+                const model = {
+                    name: ingredient,
+                    addedBy: this.username,
+                    addedOn: Date.now()
+                }
+
+                $.post('/api/ingredient', JSON.stringify(model))
+                    .then((data, status) => {
+                        console.log(data, status)
+                        window.location = window.location
+                    }, err => console.error(err))
+            }
+        })
+    })
+</script>

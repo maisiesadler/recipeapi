@@ -30,7 +30,20 @@ export class Routes {
 		const createRecipe = Express.Router();
 		createRecipe.post('/', RecipeRequestHandlers.createRecipe);
 
-		router.use('/ingredient', MegaApi.all(Ingredient));
+		const ingredient = Express.Router();
+		MegaApi.getWithQuery(ingredient, Ingredient, req => {
+			if (!!req.query.sw) {
+				const query = { name: {} }
+				query.name['$regex'] = req.query.sw;
+				return query;
+			}
+			return {};
+		});
+		MegaApi.postWithData<Ingredient>(ingredient, Ingredient, (req, model) => {
+			model.addedBy = req.user._id;
+			model.addedOn = new Date();
+		})
+		router.use('/ingredient', ingredient)
 
 		router.use('/recipes', recipes)
 		router.use('/recipe', createRecipe)
