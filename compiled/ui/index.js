@@ -6,8 +6,17 @@ class UiRoutes {
     static createRoutes() {
         var router = express_1.Express.Router();
         router.get('/', (req, res) => {
-            const s = fs.readFileSync('templates/index.html', 'UTF-8');
-            res.send(s);
+            let s = fs.readFileSync('templates/index.html', 'UTF-8');
+            if (req.isAuthenticated()) {
+                const content = fs.readFileSync('templates/recipes.html', 'UTF-8');
+                s = s.replace('{{content}}', content);
+                res.send(s);
+            }
+            else {
+                const content = fs.readFileSync('templates/login.html', 'UTF-8');
+                s = s.replace('{{content}}', content);
+                res.send(s);
+            }
         });
         return router;
     }

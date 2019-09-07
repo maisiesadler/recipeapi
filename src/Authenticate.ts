@@ -82,7 +82,6 @@ export class Authenticate {
                         return next(err);
                     }
                     console.log(user);
-                    res.cookie('userid', user._id);
                     res.send({ yay: 'yay', user })
                 });
             })(req, res, next);
@@ -94,44 +93,22 @@ export class Authenticate {
         });
 
         router.get('/validate-session', async function (req: Request, res: Response) {
-            const { authenticated, user } = await Authenticate.isAuthenticated(req);
-            const result = { authenticated, user: null }
-            if (user) {
-                result.user = user.name || user.email;
-            }
-
+            const user = req.user || {};
+            const result = {
+                authenticated: req.isAuthenticated(),
+                // username: user.username || null,
+                // spaces: user.spaces || []
+                user
+            };
             res.send(result);
         });
 
         return router;
     }
 
-    private static async isAuthenticated(req: Request): Promise<{ authenticated: boolean, user?: User }> {
-        const userid = req.headers.userid;
-        console.log(req.cookies);
-        if (!userid) {
-            return { authenticated: false }
-        }
-
-        const user = await User.findById<User>(userid).exec();
-        if (!user) {
-            return { authenticated: false }
-        }
-
-        return { authenticated: true, user }
-    }
-
-    public async appendUser(req: Request, res: Response, next: NextFunction): Promise<void> {
-        const { authenticated, user } = await Authenticate.isAuthenticated(req);
-        console.log('authenticated, req.user', authenticated, user)
-        req.user = user;
-        next();
-    }
-
     public checkAuthenticationMiddleware(): Handler {
         return async (req: Request, res: Response, next: NextFunction) => {
-            if ((await Authenticate.isAuthenticated(req)).authenticated) {
-                //req.isAuthenticated() will return true if user is logged in
+            if (req.isAuthenticated()) {
                 next();
             } else {
                 res.status(401).end();

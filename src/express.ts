@@ -3,9 +3,13 @@ const requireExpress = require("express");
 
 export interface MongoUser {
     _id: string;
+    username: string;
 }
 
 export interface Request extends IncomingMessage {
+
+    //req.isAuthenticated() will return true if user is logged in
+    isAuthenticated(): boolean;
 
     params: {
         [param: string]: string,

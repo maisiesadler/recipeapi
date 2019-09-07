@@ -15,8 +15,6 @@ app.use(function (req, res, next) {
     next();
 });
 
-app.use(authed.appendUser);
-
 app.use((req: Request, res: Response, next: NextFunction) => {
     console.log('received request', req.method, req.url)
     next();

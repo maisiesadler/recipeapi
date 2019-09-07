@@ -81,7 +81,6 @@ class Authenticate {
                         return next(err);
                     }
                     console.log(user);
-                    res.cookie('userid', user._id);
                     res.send({ yay: 'yay', user });
                 });
             })(req, res, next);
@@ -92,42 +91,21 @@ class Authenticate {
         });
         router.get('/validate-session', function (req, res) {
             return __awaiter(this, void 0, void 0, function* () {
-                const { authenticated, user } = yield Authenticate.isAuthenticated(req);
-                const result = { authenticated, user: null };
-                if (user) {
-                    result.user = user.name || user.email;
-                }
+                const user = req.user || {};
+                const result = {
+                    authenticated: req.isAuthenticated(),
+                    // username: user.username || null,
+                    // spaces: user.spaces || []
+                    user
+                };
                 res.send(result);
             });
         });
         return router;
     }
-    static isAuthenticated(req) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const userid = req.headers.userid;
-            console.log(req.cookies);
-            if (!userid) {
-                return { authenticated: false };
-            }
-            const user = yield Models_1.User.findById(userid).exec();
-            if (!user) {
-                return { authenticated: false };
-            }
-            return { authenticated: true, user };
-        });
-    }
-    appendUser(req, res, next) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { authenticated, user } = yield Authenticate.isAuthenticated(req);
-            console.log('authenticated, req.user', authenticated, user);
-            req.user = user;
-            next();
-        });
-    }
     checkAuthenticationMiddleware() {
         return (req, res, next) => __awaiter(this, void 0, void 0, function* () {
-            if ((yield Authenticate.isAuthenticated(req)).authenticated) {
-                //req.isAuthenticated() will return true if user is logged in
+            if (req.isAuthenticated()) {
                 next();
             }
             else {

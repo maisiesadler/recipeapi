@@ -22,7 +22,6 @@ app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, userid");
     next();
 });
-app.use(authed.appendUser);
 app.use((req, res, next) => {
     console.log('received request', req.method, req.url);
     next();

@@ -1,0 +1,26 @@
+<label for="username">Username</label>
+<input id="username" type="text">
+<label for="password">Password</label>
+<input id="password" type="password">
+<input type="button" value="ok" id="login">
+
+<script type="text/javascript">
+
+    $(document).ready(() => {
+        $.get('/api/validate-session')
+            .then((data, status) => {
+                console.log(data, status)
+            }, err => console.error(err))
+        console.log($('#login'))
+        $('#login').click(_ => {
+            const username = $('#username').val();
+            const password = $('#password').val();
+            console.log('hello', username, password)
+
+            $.post('/api/login', JSON.stringify({ username, password }))
+                .then((data, status) => {
+                    console.log(data, status)
+                }, err => console.error(err))
+        })
+    })
+</script>
