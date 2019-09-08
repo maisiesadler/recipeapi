@@ -4,6 +4,7 @@ const requireExpress = require("express");
 export interface MongoUser {
     _id: string;
     username: string;
+	recipes: any[];
 }
 
 export interface Request extends IncomingMessage {

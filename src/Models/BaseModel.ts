@@ -10,7 +10,7 @@ export class BaseModel {
 	toObject(): any { }
 	static modelName: string;
 
-	static find<T>(query): IExecutor<T> {
+	static find<T>(query, projection?): IExecutor<T> {
 		return null;
 	}
 	static findOne<T>(query): IOneExecutor<T> {

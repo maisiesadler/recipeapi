@@ -2,21 +2,33 @@ import { Express, Request, Response, Router } from "../express";
 const fs = require('fs');
 import { TemplateParser } from './templateparser';
 import { TemplateReplacer } from './templatereplacer';
+import { StaticRoutes } from './routes';
+import { Recipe } from '../Models';
 
 export class UiRoutes {
     public static createRoutes(): Router {
         var router = Express.Router();
 
-        router.get('/', async (req: Request, res: Response) => {
+        async function authedPage(req: Request, res: Response, createPageFn: (req: Request) => Promise<string>) {
             let s = fs.readFileSync('templates/index.html', 'UTF-8')
             if (req.isAuthenticated()) {
-                const content = fs.readFileSync('templates/search.html', 'UTF-8')
+                const content = await createPageFn(req);
+
                 s = await TemplateReplacer.Replace(s)
                 s = TemplateParser.Parse(s, { content, username: req.user.username })
                 res.send(s)
             } else {
                 res.redirect('/ui/login')
             }
+        }
+
+        router.get('/', async (req: Request, res: Response) => {
+            await authedPage(req, res, async req => {
+                const recipes = await Recipe.find<Recipe>({ "_id": { "$in": req.user.recipes } }, { "name": 1 }).exec()
+
+                let content = fs.readFileSync('templates/recipes.html', 'UTF-8')
+                return TemplateParser.Parse(content, { recipes })
+            })
         })
 
         router.get('/login', async (req: Request, res: Response) => {
@@ -31,35 +43,25 @@ export class UiRoutes {
             };
         })
 
-        var mime = {
-            html: 'text/html',
-            txt: 'text/plain',
-            css: 'text/css',
-            gif: 'image/gif',
-            jpg: 'image/jpeg',
-            png: 'image/png',
-            svg: 'image/svg+xml',
-            js: 'application/javascript'
-        };
-
-        router.get('/static/*', async (req: Request, res: Response) => {
-            const t = /static\/(.*)\/?/.exec(req.url)
-            const templatename = t[1]
-            const file = `templates/static/${templatename}`;
-            const extensionmatch = /\.(\w\+)^/.exec(file)
-            const extension = extensionmatch === null ? 'txt' : extensionmatch[1];
-
-            var s = fs.createReadStream(file);
-            var type = mime[extension] || 'text/plain';
-            s.on('open', function () {
-                res.set('Content-Type', type);
-                s.pipe(res);
-            });
-            s.on('error', function () {
-                res.set('Content-Type', 'text/plain');
-                res.status(404).end('Not found');
-            });
+        router.get('/recipe/:id', async (req: Request, res: Response) => {
+            await authedPage(req, res, async req => {
+                const id = req.params.id;
+                if (!id) {
+                    // todo: redirect to error pages? log?
+                    res.sendStatus(400);
+                    return;
+                }
+                const recipe = await Recipe.findById<Recipe>(id).exec();
+                if (!recipe) {
+                    res.sendStatus(404);
+                    return;
+                }
+                let content = fs.readFileSync('templates/recipeeditor.html', 'UTF-8')
+                return TemplateParser.Parse(content, recipe)
+            })
         })
+
+        router.use('/static', StaticRoutes.Create());
 
         return router;
     }

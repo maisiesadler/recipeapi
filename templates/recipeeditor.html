@@ -1,0 +1,47 @@
+<div class="row">
+    <div class="col-lg-6">
+        <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">{{name}}</h2>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">Ingredients</div>
+            <div class="panel-body">
+                <ul class="list-group">
+                    <for each="ingredients">
+                        <li class="list-group-item">{{name}}</li>
+                    </for>
+                </ul>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="new-ingredient" class="form-control" placeholder="New ingredient name">
+            <span class="input-group-btn">
+                <button id="add-new-ingredient" class="btn btn-default" type="button">Add</button>
+            </span>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    const id = '{{ _id }}';
+    $(document).ready(() => {
+        const $newIngredient = $('#new-ingredient');
+        const $newIngredientBtn = $('#add-new-ingredient');
+
+        function createnew(recipeId, ingredient) {
+            return new Promise((resolve, reject) => {
+                $.post('/api/recipe/ingredient', JSON.stringify({ recipeId, ingredient }))
+                    .then((data, status) => {
+                        resolve(data);
+                    }, err => reject(err))
+            })
+        }
+
+        $newIngredientBtn.click(() => {
+            const ingredient = $newIngredient.val();
+            createnew(id, ingredient)
+                .then(_ => window.location = window.location)
+                .catch(err => console.error(err));
+        });
+    })
+</script>

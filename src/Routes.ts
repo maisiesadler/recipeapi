@@ -9,7 +9,6 @@ const asYoRequest = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const authenticate = async (req: Request, res: Response, next: NextFunction) => {
-	console.log('got req.user', req.user)
 	if (!req.user) {
 		res.status(401).end();
 	} else {
@@ -24,11 +23,13 @@ export class Routes {
 		router.use(asYoRequest);
 		router.use(authenticate);
 
-		const recipes = Express.Router();
-		recipes.get('/', RecipeRequestHandlers.getUserRecipes);
-
 		const createRecipe = Express.Router();
 		createRecipe.post('/', RecipeRequestHandlers.createRecipe);
+
+		const appendToRecipe = Express.Router();
+		appendToRecipe.post('/', RecipeRequestHandlers.appendToRecipe);
+
+		createRecipe.use('/ingredient', appendToRecipe)
 
 		const ingredient = Express.Router();
 		MegaApi.getWithQuery(ingredient, Ingredient, req => {
@@ -45,7 +46,6 @@ export class Routes {
 		})
 		router.use('/ingredient', ingredient)
 
-		router.use('/recipes', recipes)
 		router.use('/recipe', createRecipe)
 		return router;
 	}

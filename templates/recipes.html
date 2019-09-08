@@ -1,29 +1,40 @@
-{{ingredients}}
-
-<input type="text" id="add-ingredient">
+<div class="row">
+    <div class="col-lg-6">
+        <ul>
+            <for each="recipes">
+                <li><a href="/ui/recipe/{{_id}}">{{name}}</a></li>
+            </for>
+        </ul>
+    </div>
+    <div class="col-lg-6">
+        <div class="input-group">
+            <input id="new-recipe" type="text" class="form-control" placeholder="New recipe name">
+            <span class="input-group-btn">
+                <button id="add-new-recipe" class="btn btn-default" type="button">Add</button>
+            </span>
+        </div>
+    </div>
+</div>
 
 <script type="text/javascript">
     $(document).ready(() => {
-        let enabled = true;
-        const ingredientInput = $('#add-ingredient');
-        ingredientInput.keypress(key => {
-            if (key.key === 'Enter') {
-                if (!enabled) return;
-                enabled = false;
-                const ingredient = ingredientInput.val();
+        const $newRecipe = $('#new-recipe');
+        const $newRecipeBtn = $('#add-new-recipe');
 
-                const model = {
-                    name: ingredient,
-                    addedBy: this.username,
-                    addedOn: Date.now()
-                }
-
-                $.post('/api/ingredient', JSON.stringify(model))
+        function createnew(name) {
+            return new Promise((resolve, reject) => {
+                $.post('/api/recipe', JSON.stringify({ name }))
                     .then((data, status) => {
-                        console.log(data, status)
-                        window.location = window.location
-                    }, err => console.error(err))
-            }
-        })
+                        resolve(data);
+                    }, err => reject(err))
+            })
+        }
+
+        $newRecipeBtn.click(() => {
+            const name = $newRecipe.val();
+            createnew(name)
+                .then(_ => window.location = window.location)
+                .catch(err => console.error(err));
+        });
     })
 </script>
