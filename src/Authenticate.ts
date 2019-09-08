@@ -13,7 +13,6 @@ const store = new MongoDBStore({
 
 const bodyParser = require("body-parser");
 const jsonParser = bodyParser.json({ type: "*/*" });
-const cookieParser = require('cookie-parser');
 
 export class Authenticate {
     constructor(app: App) {
@@ -39,8 +38,6 @@ export class Authenticate {
         passport.use(new LocalStrategy(User.authenticate()));
         passport.serializeUser(User.serializeUser());
         passport.deserializeUser(User.deserializeUser());
-
-        app.use(cookieParser());
     }
 
     public loginRoutes() {

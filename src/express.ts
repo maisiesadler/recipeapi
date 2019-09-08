@@ -36,6 +36,8 @@ export interface Response extends ServerResponse {
     send(body: string | Buffer | Object): this;
     json(obj: any): this;
     cookie(name: string, value: string): void;
+    redirect(redirectUrl: string): void;
+    set(t: string, v: string): void;
 }
 
 export type PathArgument = string | RegExp | (string | RegExp)[];

@@ -1,7 +1,19 @@
-<input type="text" id="search-ingredient">
-
-<ul id="search-results"></ul>
-<div id="no-results" class="hidden">No matches - click to add</div>
+<div class="row">
+    <div class="col-lg-4">
+        <div class="input-group">
+            <input type="text" id="search-ingredient" class="form-control" placeholder="Search for...">
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="button">Go!</button>
+            </span>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="well">
+            <ul id="search-results" class="list-group"></ul>
+            <div id="no-results" class="hidden">No matches - click to add</div>
+        </div>
+    </div>
+</div>
 
 <script type="text/javascript">
     $(document).ready(() => {
@@ -26,7 +38,8 @@
                 $noResults.addClass('hidden')
             }
             results.forEach(ingredient => {
-                const li = document.createElement('li')
+                const li = document.createElement('li');
+                li.className = 'list-group-item';
                 li.textContent = ingredient.name;
                 $searchResults.append(li)
             });

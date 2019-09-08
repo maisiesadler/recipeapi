@@ -13,6 +13,9 @@
         }
     </script>
 
+    <link rel="stylesheet" href="/ui/static/freelancer.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
     <style type="text/css">
         .hidden {
             display: none;
@@ -22,9 +25,22 @@
 </head>
 
 <body>
-    Hello, world!
+    <nav class="navbar navbar-expand-lg bg-secondary text-uppercase fixed-top" id="mainNav">
+        <div class="container">
+            [[account]]
+        </div>
+    </nav>
 
-    {{content}}
+    <section id="header" class="masthead">
+        <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Welcome</h2>
+        <div class="divider-custom">
+            <div class="divider-custom-line"></div>
+        </div>
+    </section>
+    <section id="content">
+        {{content}}
+    </section>
+
 </body>
 
 </html>

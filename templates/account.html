@@ -1,0 +1,19 @@
+<a class="navbar-brand js-scroll-trigger">Hello {{username}}</a>
+<button id="logout"
+    class="navbar-toggler navbar-toggler-right text-uppercase font-weight-bold bg-primary text-white rounded"
+    type="button">
+    Log Out
+    <i class="fas fa-bars"></i>
+</button>
+
+<script type="text/javascript">
+
+    $(document).ready(() => {
+        $('#logout').click(_ => {
+            $.get('/api/logout')
+                .then((data, status) => {
+                    window.location = window.location
+                }, err => console.error(err))
+        })
+    })
+</script>
