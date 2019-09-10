@@ -1,7 +1,7 @@
 import { Express, Request, Response, Router, NextFunction, Handler } from "./express";
 import { RecipeRequestHandlers } from './RequestHandlers'
 import { MegaApi } from "./MegaApi";
-import { Ingredient } from "./Models";
+import { Ingredient, Recipe } from "./Models";
 
 const asYoRequest = async (req: Request, res: Response, next: NextFunction) => {
 	req.yoParams = {};
@@ -23,13 +23,15 @@ export class Routes {
 		router.use(asYoRequest);
 		router.use(authenticate);
 
-		const createRecipe = Express.Router();
-		createRecipe.post('/', RecipeRequestHandlers.createRecipe);
+		const recipe = Express.Router();
+		MegaApi.getById(recipe, Recipe)
+		MegaApi.put(recipe, Recipe)
+		recipe.post('/', RecipeRequestHandlers.createRecipe);
 
 		const appendToRecipe = Express.Router();
 		appendToRecipe.post('/', RecipeRequestHandlers.appendToRecipe);
 
-		createRecipe.use('/ingredient', appendToRecipe)
+		recipe.use('/ingredient', appendToRecipe)
 
 		const ingredient = Express.Router();
 		MegaApi.getWithQuery(ingredient, Ingredient, req => {
@@ -46,7 +48,7 @@ export class Routes {
 		})
 		router.use('/ingredient', ingredient)
 
-		router.use('/recipe', createRecipe)
+		router.use('/recipe', recipe)
 		return router;
 	}
 }
