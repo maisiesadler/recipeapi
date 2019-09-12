@@ -34,46 +34,29 @@
         const $removeIngBtns = $('[remove-ing]');
 
         function createnew(recipeId, ingredient) {
-            return new Promise((resolve, reject) => {
-                $.post('/api/recipe/ingredient', JSON.stringify({ recipeId, ingredient }))
-                    .then((data, status) => {
-                        resolve(data);
-                    }, err => reject(err))
-            })
+            return PromiseHttp.post('/api/recipe/ingredient', JSON.stringify({ recipeId, ingredient }));
         }
 
-        function get(recipeId) {
-            return new Promise((resolve, reject) => {
-                $.get('/api/recipe/' + recipeId)
-                    .then((data, status) => {
-                        resolve(data);
-                    }, err => reject(err))
-            })
+        function getrecipe(recipeId) {
+            return PromiseHttp.get('/api/recipe/' + recipeId)
         }
 
         function update(recipeId, recipe) {
-            return new Promise((resolve, reject) => {
-                $.ajax({
-                    url: '/api/recipe/' + recipeId,
-                    type: 'PUT',
-                    data: JSON.stringify(recipe)
-                })
-                    .then((data, status) => {
-                        resolve(data);
-                    }, err => reject(err))
-            })
+            return PromiseHttp.put('/api/recipe/' + recipeId, JSON.stringify(recipe));
         }
 
         $newIngredientBtn.click(() => {
             const ingredient = $newIngredient.val();
-            createnew(id, ingredient)
-                .then(_ => window.location = window.location)
-                .catch(err => console.error(err));
+            if (!!ingredient) {
+                createnew(id, ingredient)
+                    .then(_ => window.location = window.location)
+                    .catch(err => console.error(err));
+            }
         });
 
         $removeIngBtns.click(e => {
             const ingredientName = e.target.getAttribute('remove-ing');
-            get(id)
+            getrecipe(id)
                 .then(recipe => {
                     recipe.ingredients = recipe.ingredients.filter(i => i.name !== ingredientName);
                     update(id, recipe)
