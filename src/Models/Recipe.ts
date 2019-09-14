@@ -9,6 +9,7 @@ var ingredientSchema = new Schema({
 
 var recipeSchema: Schema = new Schema({
     name: String,
+    addedOn: Date,
     active: { type: Boolean, default: true },
     ingredients: Array
 });
@@ -26,8 +27,9 @@ export class RecipeIngredient {
 
 export class Recipe extends BaseModel {
     name: string;
+    addedOn: Date;
     active: boolean;
-    ingredients: RecipeIngredient[]
+    ingredients: RecipeIngredient[];
 }
 
 exports.Ingredient = model("r_Ingredient", ingredientSchema);

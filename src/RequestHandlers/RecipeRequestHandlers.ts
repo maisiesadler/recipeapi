@@ -8,7 +8,7 @@ export class RecipeRequestHandlers {
 
         // todo: validation
 
-        var recipe = new Recipe({ name: req.body.name, ingredients: [] });
+        var recipe = new Recipe({ name: req.body.name, ingredients: [], addedOn: new Date() });
         var result = await recipe.save();
 
         user.recipes = (user.recipes || []).concat(recipe._id);
