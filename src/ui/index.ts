@@ -22,6 +22,22 @@ export class UiRoutes {
             }
         }
 
+        async function ingredientSelector(): Promise<string> {
+            let content = fs.readFileSync('templates/ingredients.html', 'UTF-8')
+            const category = await Category.find<Category>({}).exec()
+            category.unshift({ _id: 'all', name: 'all' } as any)
+            return TemplateParser.Parse(content, { category })
+        }
+
+        async function templatereplacer(name: string): Promise<string> {
+            switch(name) {
+                case 'ingredients':
+                    return await ingredientSelector();
+            }
+
+            return 'unknown template: ' + name;
+        }
+
         router.get('/', async (req: Request, res: Response) => {
             await authedPage(req, res, async req => {
                 const recipes = await Recipe.find<Recipe>({ "_id": { "$in": req.user.recipes } }, { "name": 1, "addedOn": 1 }).exec()
@@ -65,7 +81,8 @@ export class UiRoutes {
                     res.sendStatus(404);
                     return;
                 }
-                let content = fs.readFileSync('templates/recipeeditor.html', 'UTF-8')
+                let content = fs.readFileSync('templates/recipeeditor.html', 'UTF-8');
+                content = await TemplateReplacer.ReplaceWithOptions(content, templatereplacer);
                 return TemplateParser.Parse(content, recipe)
             })
         })

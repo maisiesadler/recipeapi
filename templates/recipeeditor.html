@@ -17,12 +17,7 @@
             </div>
         </div>
 
-        <div class="input-group">
-            <input type="text" id="new-ingredient" class="form-control" placeholder="New ingredient name">
-            <span class="input-group-btn">
-                <button id="add-new-ingredient" class="btn btn-default" type="button">Add</button>
-            </span>
-        </div>
+        [[ingredients]]
     </div>
 </div>
 
@@ -45,15 +40,6 @@
             return PromiseHttp.put('/api/recipe/' + recipeId, JSON.stringify(recipe));
         }
 
-        $newIngredientBtn.click(() => {
-            const ingredient = $newIngredient.val();
-            if (!!ingredient) {
-                createnew(id, ingredient)
-                    .then(_ => window.location = window.location)
-                    .catch(err => console.error(err));
-            }
-        });
-
         $removeIngBtns.click(e => {
             const ingredientName = e.target.getAttribute('remove-ing');
             getrecipe(id)
@@ -64,6 +50,15 @@
                         .catch(x => console.error(x));
                 })
                 .catch(x => console.error(x));
+        })
+
+        document.addEventListener('yr.ingredient', function (e) {
+            const ingredient = e.detail.name
+            if (!!ingredient) {
+                createnew(id, ingredient)
+                    .then(_ => window.location = window.location)
+                    .catch(err => console.error(err));
+            }
         })
     })
 </script>

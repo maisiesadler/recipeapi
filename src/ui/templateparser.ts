@@ -9,10 +9,11 @@ export class TemplateParser {
 
         let next = TemplateParser.findNext(o);
         while (next !== null) {
-            let val = replacer[next[1]] || '';
+            let val = replacer[next[1].trim()] || '';
             if (typeof val.join === 'function') {
                 val = val.join('<br>')
             }
+
             o = o.replace(next[0], val);
             next = TemplateParser.findNext(o);
         }
@@ -37,7 +38,6 @@ export class TemplateParser {
 
     private static replaceOne(template: string, o: any): string {
         let next = TemplateParser.findNext(template);
-        // console.log('next', next, o)
         while (next !== null) {
             if (next[0].indexOf('=') > 0) {
                 // is expression

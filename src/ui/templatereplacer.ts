@@ -13,6 +13,18 @@ export class TemplateReplacer {
         return template;
     }
 
+    public static async ReplaceWithOptions(template: string, replacer: (name: string) => Promise<string>): Promise<string> {
+        let next = TemplateReplacer.findNext(template);
+        while (next !== null) {
+            const file = next[1]
+            const t = await replacer(file);
+            template = template.replace(next[0], t);
+            next = TemplateReplacer.findNext(template);
+        }
+
+        return template;
+    }
+
     private static findNext(o: string): RegExpExecArray {
         return /\[\[ *(\w+) *\]\]/g.exec(o);
     }
