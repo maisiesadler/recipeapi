@@ -1,7 +1,7 @@
 import { Express, Request, Response, Router, NextFunction, Handler } from "./express";
 import { RecipeRequestHandlers } from './RequestHandlers'
 import { MegaApi } from "./MegaApi";
-import { Ingredient, Recipe } from "./Models";
+import { Ingredient, Recipe, Category } from "./Models";
 
 const asYoRequest = async (req: Request, res: Response, next: NextFunction) => {
 	req.yoParams = {};
@@ -46,7 +46,8 @@ export class Routes {
 			model.addedBy = req.user._id;
 			model.addedOn = new Date();
 		})
-		router.use('/ingredient', ingredient)
+		router.use('/ingredient', ingredient);
+		router.use('/category', MegaApi.all(Category));
 
 		router.use('/recipe', recipe)
 		return router;

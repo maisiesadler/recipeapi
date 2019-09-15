@@ -1,0 +1,151 @@
+<div class="row">
+    <div class="col-lg-4">
+        <div class="input-group">
+            <input type="text" id="search-ingredient" class="form-control" placeholder="Search for...">
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="button">Go!</button>
+            </span>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div>
+            <ul class="nav nav-tabs" role="tablist">
+                <for each="category">
+                    <li role="presentation" class="{{_idx == 0 ? 'active' : ''}}"><a href="#{{_id}}"
+                            aria-controls="{{_id}}" role="tab" data-toggle="tab">{{name}}</a></li>
+                </for>
+                <li role="presentation">
+                    <a href="#add-category" role="tab" aria-controls="add-category" data-toggle="tab">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                    </a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <for each="category">
+                    <div role="tabpanel" class="tab-pane {{_idx == 0 ? 'active' : 'nan'}}" id="{{_id}}">
+                        <div class="well">
+                            <ul class="list-group"></ul>
+                            <div id="no-results-{{_id}}" class="d-none">
+                                <div class="add-new-result">
+                                    No matches - click to add
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </for>
+                <div role="tabpanel" class="tab-pane" id="add-category">
+                    <div class="input-group" id="add-category-group">
+                        <input type="text" class="form-control" placeholder="New category">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button">Add</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(() => {
+
+        const $searchResults = $('#search-results');
+        const $addNewResult = $('.add-new-result');
+        const $ingredientInput = $('#search-ingredient');
+        const $addCategoryGroup = $('#add-category-group');
+        const $selectedCategory = $('#selected-category');
+
+        function createListGroupItem(name) {
+            const li = document.createElement('li');
+            li.className = 'list-group-item';
+            li.textContent = name;
+            return li
+        }
+
+        let currentResults = [];
+        let selectedTab = 'all'
+
+        function rebuildPanel() {
+            const $panel = $($(`[role=tabpanel]#${selectedTab}`)[0]);
+            const ul = $panel.find('ul')
+            $(ul).empty();
+
+            const $noResults = $panel.find('#no-results-' + selectedTab)
+
+            if (currentResults.length === 0) {
+                $noResults.removeClass('d-none')
+            } else {
+                $noResults.addClass('d-none')
+            }
+
+            currentResults.forEach(result => {
+                if (selectedTab === 'all' || result.category === selectedTab) {
+                    const li = createListGroupItem(result.name);
+                    ul.append(li)
+                }
+            })
+        }
+
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            selectedTab = e.target.getAttribute('aria-controls');
+            rebuildPanel();
+        })
+
+        function search(text) {
+            return new Promise((resolve, reject) => {
+                $.get('/api/ingredient?sw=' + text)
+                    .then((data, status) => {
+                        resolve(data);
+                    }, err => reject(err))
+            })
+        }
+
+        function setResults(results) {
+            $searchResults.empty();
+            currentResults = results;
+            rebuildPanel();
+        }
+
+        $addNewResult.click(() => {
+            const ingredient = $ingredientInput.val();
+            if (!ingredient) {
+                console.error('no ingredient')
+                return;
+            }
+            if (selectedTab === 'all') {
+                console.error('cannot do all yet')
+                return;
+            }
+            $.post('/api/ingredient', JSON.stringify({ name: ingredient, category: selectedTab }))
+                .then((data, status) => {
+                    search(ingredient)
+                        .then(results => setResults(results))
+                        .catch(err => console.error(err));
+                }, err => console.error(err))
+        });
+
+        $addCategoryGroup.find('.btn')
+            .click(() => {
+                const name = $addCategoryGroup.find('input').val();
+                if (!!name) {
+                    PromiseHttp.post('/api/category', JSON.stringify({ name }))
+                        .then(_ => window.location = window.location)
+                        .catch(err => console.error(err));
+                }
+            })
+
+        search('')
+            .then(results => setResults(results))
+            .catch(err => console.error(err));
+        const debouncedSearch = createDebounce(250)
+        $ingredientInput.keyup(async key => {
+            debouncedSearch(() => {
+                const ingredient = $ingredientInput.val();
+                search(ingredient)
+                    .then(results => setResults(results))
+                    .catch(err => console.error(err));
+            })
+        })
+    })
+</script>

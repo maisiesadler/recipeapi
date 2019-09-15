@@ -3,7 +3,7 @@ const fs = require('fs');
 import { TemplateParser } from './templateparser';
 import { TemplateReplacer } from './templatereplacer';
 import { StaticRoutes } from './routes';
-import { Recipe } from '../Models';
+import { Recipe, Category } from '../Models';
 
 export class UiRoutes {
     public static createRoutes(): Router {
@@ -28,6 +28,15 @@ export class UiRoutes {
 
                 let content = fs.readFileSync('templates/recipes.html', 'UTF-8')
                 return TemplateParser.Parse(content, { recipes })
+            })
+        })
+
+        router.get('/ingredients', async (req: Request, res: Response) => {
+            await authedPage(req, res, async req => {
+                let content = fs.readFileSync('templates/ingredients.html', 'UTF-8')
+                const category = await Category.find<Category>({}).exec()
+                category.unshift({ _id: 'all', name: 'all' } as any)
+                return TemplateParser.Parse(content, { category })
             })
         })
 

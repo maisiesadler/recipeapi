@@ -28,16 +28,42 @@ export class TemplateParser {
             return '';
         }
 
-        return replaceobj.map(r => {
-            return TemplateParser.replaceOne(match[2], r)
+        return replaceobj.map((replaceContents, _idx) => {
+            // using {...} syntax with the mongo objects gives weird results
+            replaceContents._idx = _idx
+            return TemplateParser.replaceOne(match[2], replaceContents)
         }).join('')
     }
 
     private static replaceOne(template: string, o: any): string {
         let next = TemplateParser.findNext(template);
+        // console.log('next', next, o)
         while (next !== null) {
-            let val = o[next[1]] || '';
-            template = template.replace(next[0], val);
+            if (next[0].indexOf('=') > 0) {
+                // is expression
+                const parts = next[1].split(/[= ]/).filter(x => !!x);
+                let s = next[1]
+                parts.forEach(part => {
+                    if (/^[A-Za-z_]+$/.exec(part) !== null) {
+                        // todo: this won't work if the variable == string name
+                        let val = o[part];
+                        if (typeof val == 'string') {
+                            val = `'${val}'`;
+                        }
+                        s = s.replace(part, val);
+                    }
+                })
+                let evaled = 'not evaled';
+                try {
+                    evaled = eval(s)
+                } catch (e) {
+                    evaled = 'error: ' + e
+                }
+                template = template.replace(next[0], evaled);
+            } else {
+                let val = o[next[1]] || '';
+                template = template.replace(next[0], val);
+            }
             next = TemplateParser.findNext(template);
         }
 
@@ -45,10 +71,10 @@ export class TemplateParser {
     }
 
     private static findNext(o: string): RegExpExecArray {
-        return /{{ *(\w+) *}}/g.exec(o);
+        return /{{ *([\w='_?: ]+) *}}/g.exec(o);
     }
 
     private static findFors(o: string): RegExpExecArray {
-        return /<for([^>]*)>(.*)<\/for>/s.exec(o);
+        return /<for([^>]*)>(.*?)<\/for>/s.exec(o);
     }
 }

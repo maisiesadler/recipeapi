@@ -3,8 +3,10 @@ import { BaseModel } from './BaseModel';
 
 var ingredientSchema = new Schema({
     name: String,
+    type: String,
     addedBy: Schema.Types.ObjectId,
-    addedOn: Date
+    addedOn: Date,
+    category: Schema.Types.ObjectId,
 })
 
 var recipeSchema: Schema = new Schema({
@@ -16,8 +18,10 @@ var recipeSchema: Schema = new Schema({
 
 export class Ingredient extends BaseModel {
     name: string;
+    type: string;
     addedBy: string;
-    addedOn: Date
+    addedOn: Date;
+    category: string;
 }
 
 export class RecipeIngredient {
