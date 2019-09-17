@@ -1,16 +1,16 @@
 import { Express, Request, Response, Router } from "../express";
-const fs = require('fs');
 import { TemplateParser } from './templateparser';
 import { TemplateReplacer } from './templatereplacer';
 import { StaticRoutes } from './routes';
 import { Recipe, Category } from '../Models';
+import { Fs } from '../Fs';
 
 export class UiRoutes {
     public static createRoutes(): Router {
         var router = Express.Router();
 
         async function authedPage(req: Request, res: Response, createPageFn: (req: Request) => Promise<string>) {
-            let s = fs.readFileSync('templates/index.html', 'UTF-8')
+            let s = await Fs.readFile('templates/index.html')
             if (req.isAuthenticated()) {
                 const content = await createPageFn(req);
 
@@ -23,16 +23,21 @@ export class UiRoutes {
         }
 
         async function ingredientSelector(): Promise<string> {
-            let content = fs.readFileSync('templates/ingredients.html', 'UTF-8')
+            let content = await Fs.readFile('templates/ingredients.html')
             const category = await Category.find<Category>({}).exec()
             category.unshift({ _id: 'all', name: 'all' } as any)
             return TemplateParser.Parse(content, { category })
         }
 
         async function templatereplacer(name: string): Promise<string> {
-            switch(name) {
+            switch (name) {
                 case 'ingredients':
                     return await ingredientSelector();
+            }
+            const file = `templates/${name}.html`;
+            const exist = await Fs.exists(file);
+            if (exist) {
+                return await Fs.readFile(file);
             }
 
             return 'unknown template: ' + name;
@@ -42,14 +47,14 @@ export class UiRoutes {
             await authedPage(req, res, async req => {
                 const recipes = await Recipe.find<Recipe>({ "_id": { "$in": req.user.recipes } }, { "name": 1, "addedOn": 1 }).exec()
 
-                let content = fs.readFileSync('templates/recipes.html', 'UTF-8')
+                let content = await Fs.readFile('templates/recipes.html')
                 return TemplateParser.Parse(content, { recipes })
             })
         })
 
         router.get('/ingredients', async (req: Request, res: Response) => {
             await authedPage(req, res, async req => {
-                let content = fs.readFileSync('templates/ingredients.html', 'UTF-8')
+                let content = await Fs.readFile('templates/ingredients.html')
                 const category = await Category.find<Category>({}).exec()
                 category.unshift({ _id: 'all', name: 'all' } as any)
                 return TemplateParser.Parse(content, { category })
@@ -60,8 +65,8 @@ export class UiRoutes {
             if (req.isAuthenticated()) {
                 res.redirect('/ui')
             } else {
-                let s = fs.readFileSync('templates/index.html', 'UTF-8')
-                const content = fs.readFileSync('templates/login.html', 'UTF-8')
+                let s = await Fs.readFile('templates/index.html')
+                const content = await Fs.readFile('templates/login.html')
 
                 s = TemplateParser.Parse(s, { content })
                 res.send(s)
@@ -81,7 +86,7 @@ export class UiRoutes {
                     res.sendStatus(404);
                     return;
                 }
-                let content = fs.readFileSync('templates/recipeeditor.html', 'UTF-8');
+                let content = await Fs.readFile('templates/recipeeditor.html');
                 content = await TemplateReplacer.ReplaceWithOptions(content, templatereplacer);
                 return TemplateParser.Parse(content, recipe)
             })

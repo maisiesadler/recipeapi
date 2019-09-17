@@ -23,8 +23,12 @@ export class RecipeRequestHandlers {
 
         // todo: can user edit?
         // todo: validation
+        if (!req.body.ingredient || !req.body.ingredientId) {
+            res.sendStatus(400)
+            return;
+        }
 
-        const ingredient: RecipeIngredient = { name: req.body.ingredient, amount: '' }
+        const ingredient: RecipeIngredient = { name: req.body.ingredient, amount: '', ingredientId: req.body.ingredientId }
 
         recipe.ingredients.push(ingredient)
 

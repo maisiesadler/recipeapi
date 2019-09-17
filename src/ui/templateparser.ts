@@ -10,9 +10,6 @@ export class TemplateParser {
         let next = TemplateParser.findNext(o);
         while (next !== null) {
             let val = replacer[next[1].trim()] || '';
-            if (typeof val.join === 'function') {
-                val = val.join('<br>')
-            }
 
             o = o.replace(next[0], val);
             next = TemplateParser.findNext(o);
@@ -61,7 +58,10 @@ export class TemplateParser {
                 }
                 template = template.replace(next[0], evaled);
             } else {
-                let val = o[next[1]] || '';
+                let val = o[next[1]];
+                if (typeof val === 'undefined') {
+                    val = '';
+                }
                 template = template.replace(next[0], val);
             }
             next = TemplateParser.findNext(template);
@@ -71,7 +71,7 @@ export class TemplateParser {
     }
 
     private static findNext(o: string): RegExpExecArray {
-        return /{{ *([\w='_?: ]+) *}}/g.exec(o);
+        return /{{ *([\w='_?:! ]+) *}}/g.exec(o);
     }
 
     private static findFors(o: string): RegExpExecArray {

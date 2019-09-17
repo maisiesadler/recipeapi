@@ -8,6 +8,9 @@
                 <div class="list-group">
                     <for each="ingredients">
                         <div class="list-group-item d-flex justify-content-between">
+                            <div class="amounteditor" idx="{{_idx}}" style="line-height: 30px">
+                                [[amounteditor]]
+                            </div>
                             <div class="flex-grow-1" style="line-height: 30px">{{name}}</div>
                             <button remove-ing="{{name}}" class="btn btn-default btn-sm glyphicon glyphicon-remove"
                                 aria-hidden="true"></button>
@@ -28,8 +31,8 @@
         const $newIngredientBtn = $('#add-new-ingredient');
         const $removeIngBtns = $('[remove-ing]');
 
-        function createnew(recipeId, ingredient) {
-            return PromiseHttp.post('/api/recipe/ingredient', JSON.stringify({ recipeId, ingredient }));
+        function createnew(recipeId, ingredient, ingredientId) {
+            return PromiseHttp.post('/api/recipe/ingredient', JSON.stringify({ recipeId, ingredient, ingredientId }));
         }
 
         function getrecipe(recipeId) {
@@ -52,10 +55,26 @@
                 .catch(x => console.error(x));
         })
 
+        $('.amounteditor')
+            .on('amountupdated', function (e) {
+                const $editor = $(e.currentTarget);
+                const idx = $editor.attr('idx');
+                const amount = $editor.find('input.amount').val()
+
+                getrecipe(id)
+                    .then(recipe => {
+                        recipe.ingredients[idx].amount = amount;
+                        update(id, recipe)
+                            .then(_ => window.location = window.location)
+                            .catch(x => console.error(x));
+                    })
+                    .catch(x => console.error(x));
+            })
+
         document.addEventListener('yr.ingredient', function (e) {
-            const ingredient = e.detail.name
-            if (!!ingredient) {
-                createnew(id, ingredient)
+            const ingredient = e.detail
+            if (!!ingredient && !!ingredient.name && !!ingredient._id) {
+                createnew(id, ingredient.name, ingredient._id)
                     .then(_ => window.location = window.location)
                     .catch(err => console.error(err));
             }

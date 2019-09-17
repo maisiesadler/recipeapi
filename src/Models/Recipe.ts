@@ -26,6 +26,7 @@ export class Ingredient extends BaseModel {
 
 export class RecipeIngredient {
     name: string;
+    ingredientId: string;
     amount: string;
 }
 

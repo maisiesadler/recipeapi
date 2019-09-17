@@ -1,0 +1,23 @@
+<div class="edit-container" style="min-width: 40px;">
+    <input class="amount d-none" type="text" value="{{amount}}">
+    <div class="begin-edit-btn" id="begin-edit-{{_idx}}">{{amount}}
+        <div hide="{{amount != ''}}"><span class="glyphicon glyphicon-plus" style="line-height: 28px" aria-hidden="true"></span></div>
+    </div>
+
+    <div class="d-none" id="update-amount-{{_idx}}">update</div>
+</div>
+
+<script>
+    $(document).ready(() => {
+        $('#begin-edit-{{_idx}}').click(e => {
+            const $container = $($(e.target).parents('.edit-container')[0]);
+            $container.find('.begin-edit-btn').addClass('d-none');
+            $container.find('input').removeClass('d-none')
+            $('#update-amount-{{_idx}}').removeClass('d-none');
+        })
+        $('#update-amount-{{_idx}}').click(e => {
+            const ev = new $.Event('amountupdated', { detail: 'sndfo' })
+            $(e.target).trigger(ev);
+        })
+    });
+</script>

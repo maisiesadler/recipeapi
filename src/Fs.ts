@@ -12,4 +12,15 @@ export class Fs {
             })
         })
     }
+    public static exists(file: string) : Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            fs.exists(file, (data, err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(data);
+                }
+            })
+        })
+    }
 }
