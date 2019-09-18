@@ -31,7 +31,11 @@ export class Routes {
 		const appendToRecipe = Express.Router();
 		appendToRecipe.post('/', RecipeRequestHandlers.appendToRecipe);
 
+		const shareWith = Express.Router();
+		shareWith.post('/', RecipeRequestHandlers.shareWith);
+
 		recipe.use('/ingredient', appendToRecipe)
+		recipe.use('/share', shareWith)
 
 		const ingredient = Express.Router();
 		MegaApi.getWithQuery(ingredient, Ingredient, req => {

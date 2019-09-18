@@ -2,7 +2,7 @@ import { Express, Request, Response, Router } from "../express";
 import { TemplateParser } from './templateparser';
 import { TemplateReplacer } from './templatereplacer';
 import { StaticRoutes } from './routes';
-import { Recipe, Category } from '../Models';
+import { Recipe, Category, User } from '../Models';
 import { Fs } from '../Fs';
 
 export class UiRoutes {
@@ -45,7 +45,7 @@ export class UiRoutes {
 
         router.get('/', async (req: Request, res: Response) => {
             await authedPage(req, res, async req => {
-                const orSelector = [{ "addedBy": req.user._id }, { "allowedViewers": { "$eq": [ req.user._id ] } }];
+                const orSelector = [{ "addedBy": req.user._id }, { "allowedViewers": { "$eq": [req.user._id] } }];
                 const recipes = await Recipe.find<Recipe>({ "_id": { "$in": req.user.recipes }, "$or": orSelector }, { "name": 1, "addedOn": 1 }).exec()
 
                 let content = await Fs.readFile('templates/recipes.html')
@@ -87,6 +87,8 @@ export class UiRoutes {
                     res.sendStatus(404);
                     return;
                 }
+                const users = await User.find<User>({}).exec();
+                (recipe as any).users = users;
                 let content = await Fs.readFile('templates/recipeeditor.html');
                 content = await TemplateReplacer.ReplaceWithOptions(content, templatereplacer);
                 return TemplateParser.Parse(content, recipe)

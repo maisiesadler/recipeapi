@@ -1,6 +1,19 @@
 <div class="row">
     <div class="col-lg-6">
-        <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">{{name}}</h2>
+        <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">
+            <div class="d-inline-block">{{name}}</div>
+            <div class="dropdown d-inline-block">
+                <button class="btn btn-default dropdown-toggle" type="button" id="shareWithUsers" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="true">
+                    Share with
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="shareWithUsers">
+                    <for each="users">
+                        <li sharewith="{{_id}}">{{email}}</li>
+                    </for>
+                </ul>
+            </div>
+        </h2>
 
         <div class="panel panel-default">
             <div class="panel-heading">Ingredients</div>
@@ -74,6 +87,15 @@
                     })
                     .catch(x => console.error(x));
             })
+
+        $('[sharewith]').click(e => {
+            const $target = $(e.target);
+            const userId = $target.attr('sharewith')
+
+            PromiseHttp.post('/api/recipe/share', JSON.stringify({ userId, recipeId: id }))
+                .then(data => { })
+                .catch(err => console.error(err));
+        })
 
         document.addEventListener('yr.ingredient', function (e) {
             const ingredient = e.detail
