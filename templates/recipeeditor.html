@@ -65,7 +65,11 @@
                     .then(recipe => {
                         recipe.ingredients[idx].amount = amount;
                         update(id, recipe)
-                            .then(_ => window.location = window.location)
+                            .then(_ => {
+                                var page_y = document.getElementsByTagName("body")[0].scrollTop
+                                window.sessionStorage.setItem('page_y', page_y)
+                                window.location = window.location
+                            })
                             .catch(x => console.error(x));
                     })
                     .catch(x => console.error(x));

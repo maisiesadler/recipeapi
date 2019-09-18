@@ -23,6 +23,16 @@
             display: none;
         }
     </style>
+
+    <script>
+        window.onload = function () {
+            const page_y = window.sessionStorage.getItem('page_y');
+            if (page_y !== null) {
+                document.getElementsByTagName("body")[0].scrollTop = page_y;
+            }
+            window.sessionStorage.setItem('page_y', null);
+        }
+    </script>
 </head>
 
 <body>

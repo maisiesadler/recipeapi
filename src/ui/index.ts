@@ -45,7 +45,8 @@ export class UiRoutes {
 
         router.get('/', async (req: Request, res: Response) => {
             await authedPage(req, res, async req => {
-                const recipes = await Recipe.find<Recipe>({ "_id": { "$in": req.user.recipes } }, { "name": 1, "addedOn": 1 }).exec()
+                const orSelector = [{ "addedBy": req.user._id }, { "allowedViewers": { "$eq": [ req.user._id ] } }];
+                const recipes = await Recipe.find<Recipe>({ "_id": { "$in": req.user.recipes }, "$or": orSelector }, { "name": 1, "addedOn": 1 }).exec()
 
                 let content = await Fs.readFile('templates/recipes.html')
                 return TemplateParser.Parse(content, { recipes })

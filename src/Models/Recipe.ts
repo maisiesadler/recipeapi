@@ -11,9 +11,11 @@ var ingredientSchema = new Schema({
 
 var recipeSchema: Schema = new Schema({
     name: String,
+    addedBy: Schema.Types.ObjectId,
     addedOn: Date,
     active: { type: Boolean, default: true },
-    ingredients: Array
+    ingredients: Array,
+    allowedViewers: Array,
 });
 
 export class Ingredient extends BaseModel {
@@ -32,9 +34,11 @@ export class RecipeIngredient {
 
 export class Recipe extends BaseModel {
     name: string;
+    addedBy: string;
     addedOn: Date;
     active: boolean;
     ingredients: RecipeIngredient[];
+    allowedViewers: string[];
 }
 
 exports.Ingredient = model("r_Ingredient", ingredientSchema);
