@@ -36,4 +36,39 @@ export class RecipeRequestHandlers {
 
         res.end();
     }
+
+    public static async shareWith(req: Request, res: Response, next: NextFunction) {
+        const recipeId = req.body.recipeId;
+        const userId = req.body.userId;
+        
+        if (!recipeId || !userId) {
+            res.sendStatus(400)
+            return;
+        }
+
+        const recipe = await Recipe.findById<Recipe>(recipeId).exec();
+
+        if (recipe.addedBy !== req.user._id) {
+            res.sendStatus(401);
+            return;
+        }
+
+        const user = await User.findById<User>(userId).exec();
+        if (user === null) {
+            res.sendStatus(400);
+            return;
+        }
+
+        user.recipes.push(recipeId);
+        await user.save();
+
+        // todo: can user edit?
+        // todo: validation
+
+        recipe.allowedViewers.push(req.body.userId);
+
+        var result = await recipe.save();
+
+        res.end();
+    }
 }
