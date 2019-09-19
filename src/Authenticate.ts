@@ -63,25 +63,8 @@ export class Authenticate {
             });
         });
 
-        router.post('/login', function (req, res, next) {
-            passport.authenticate('local', function (err, user, info) {
-                if (err) {
-                    console.log('err', err)
-                    return next(err);
-                }
-                if (!user) {
-                    console.log('no user')
-                    return next('/login');
-                }
-                req.logIn(user, function (err) {
-                    if (err) {
-                        console.log('err at 1', err);
-                        return next(err);
-                    }
-                    console.log(user);
-                    res.send({ yay: 'yay', user })
-                });
-            })(req, res, next);
+        router.post('/login', passport.authenticate('local'), function (req, res) {
+            res.status(200).end();
         });
 
         router.get('/logout', function (req, res) {
