@@ -48,8 +48,6 @@ export class UiRoutes {
                 const orSelector = [{ "addedBy": req.user._id }, { "allowedViewers": { "$elemMatch": { _id: req.user._id } } }];
                 const recipes = await Recipe.find<Recipe>({ "$or": orSelector }, { "name": 1, "addedOn": 1 }).exec()
 
-                console.log(req.user._id, typeof req.user._id);
-
                 let content = await Fs.readFile('templates/recipes.html')
                 return TemplateParser.Parse(content, { recipes })
             })
