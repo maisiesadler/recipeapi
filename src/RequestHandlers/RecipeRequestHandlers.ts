@@ -40,15 +40,18 @@ export class RecipeRequestHandlers {
     public static async shareWith(req: Request, res: Response, next: NextFunction) {
         const recipeId = req.body.recipeId;
         const userId = req.body.userId;
-        
+
         if (!recipeId || !userId) {
+            console.log('recipeId or userId undefined', recipeId, userId);
             res.sendStatus(400)
             return;
         }
 
         const recipe = await Recipe.findById<Recipe>(recipeId).exec();
 
-        if (recipe.addedBy !== req.user._id) {
+        // todo: is there a better way to compare users?
+        if (recipe.addedBy.toString() !== req.user._id.toString()) {
+            console.log('not added by user', recipe.addedBy, req.user._id);
             res.sendStatus(401);
             return;
         }
@@ -65,7 +68,7 @@ export class RecipeRequestHandlers {
         // todo: can user edit?
         // todo: validation
 
-        recipe.allowedViewers.push(req.body.userId);
+        recipe.allowedViewers.push({ _id: user._id });
 
         var result = await recipe.save();
 

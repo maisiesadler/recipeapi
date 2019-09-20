@@ -47,8 +47,7 @@ export class Authenticate {
 
         router.post('/register', function (req: Request, res: Response) {
             User.register(new User({
-                username: req.body.username,
-                email: req.body.email
+                username: req.body.username
             }), req.body.password, function (err, user) {
                 if (err) {
                     console.log('error creating user', err)

@@ -38,7 +38,7 @@ export class Recipe extends BaseModel {
     addedOn: Date;
     active: boolean;
     ingredients: RecipeIngredient[];
-    allowedViewers: string[];
+    allowedViewers: { _id: string }[];
 }
 
 exports.Ingredient = model("r_Ingredient", ingredientSchema);

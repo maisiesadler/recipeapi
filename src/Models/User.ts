@@ -3,18 +3,16 @@ import { BaseModel } from './BaseModel';
 var passportLocalMongoose = require('passport-local-mongoose');
 
 var userSchema: Schema = new Schema({
-	email: {
+	password: String,
+	username: {
 		type: String,
 		required: true
 	},
-	password: String,
-	name: String,
 	recipes: [Schema.Types.ObjectId]
 });
 
 export class User extends BaseModel {
-	email: string;
-	name?: string;
+	username: string;
 	recipes: any[];
 
 	static register(user: User, password: string, fn: (err: any, user: User) => void) { }
