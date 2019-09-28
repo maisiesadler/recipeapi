@@ -50,9 +50,8 @@ export class MegaApi {
             Logger.info(`POST: ${modelName}`);
             try {
                 var model = new type(req.body);
-                var result = await model.save();
-                res.json(result);
-                next(result);
+                await model.save();
+                res.sendStatus(200);
             } catch (e) {
                 next(e);
             }
@@ -69,9 +68,8 @@ export class MegaApi {
             try {
                 var model = new type(req.body);
                 modifyFn(req, model as T);
-                var result = await model.save();
-                res.json(result);
-                next(result);
+                await model.save();
+                res.sendStatus(200);
             } catch (e) {
                 next(e);
             }
