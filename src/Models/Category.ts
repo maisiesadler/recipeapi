@@ -9,4 +9,4 @@ export class Category extends BaseModel {
     name: string;
 }
 
-exports.Category = model("r_Category", categorySchema);
+exports.Category = model("Category", categorySchema);

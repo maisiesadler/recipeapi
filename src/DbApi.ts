@@ -3,11 +3,9 @@ import { Logger } from "./Logger";
 var mongoose = require("mongoose");
 
 export class DbApi {
-    public static connect(): Promise<void> {
+    public static connect(uri: string): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            mongoose.connect(
-                "mongodb://admin:admin@mongo:27017/yoalert-dev?authSource=admin"
-            );
+            mongoose.connect(uri, { useNewUrlParser: true });
 
             var mdb = mongoose.connection;
             mdb.on("error", err => {

@@ -2,20 +2,20 @@ import { App, Express, Handler, Request, Response, NextFunction } from "./expres
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
-const MongoDBStore = require('connect-mongodb-session')(session);
+const MongoDBStore = require('connect-mongo')(session);
 
 import { User } from "./Models";
-
-const store = new MongoDBStore({
-    uri: 'mongodb://admin:admin@mongo:27017/yoalert-dev?authSource=admin',
-    collection: 'r_sessions'
-});
 
 const bodyParser = require("body-parser");
 const jsonParser = bodyParser.json({ type: "*/*" });
 
 export class Authenticate {
-    constructor(app: App) {
+    constructor(app: App, url: string) {
+        const store = new MongoDBStore({
+            url,
+            collection: 'sessions'
+        });
+        
         store.on('connected', function () {
             store.client; // The underlying MongoClient object from the MongoDB driver
         });

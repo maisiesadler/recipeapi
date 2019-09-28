@@ -11,14 +11,20 @@ export class UiRoutes {
 
         async function authedPage(req: Request, res: Response, createPageFn: (req: Request) => Promise<string>) {
             let s = await Fs.readFile('templates/index.html')
-            if (req.isAuthenticated()) {
-                const content = await createPageFn(req);
+            try {
+                if (req.isAuthenticated()) {
+                    const content = await createPageFn(req);
 
-                s = await TemplateReplacer.Replace(s)
-                s = TemplateParser.Parse(s, { content, username: req.user.username })
-                res.send(s)
-            } else {
-                res.redirect('/ui/login')
+                    s = await TemplateReplacer.Replace(s)
+                    s = TemplateParser.Parse(s, { content, username: req.user.username })
+                    res.send(s)
+                } else {
+                    res.redirect('/ui/login')
+                }
+            } catch (err) {
+                console.error('error loading authed page', err)
+                // todo: error page?
+                res.sendStatus(500);
             }
         }
 

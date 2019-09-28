@@ -5,7 +5,7 @@ export class BaseModel {
 	constructor(model: any) {
 	}
 
-	save() { }
+	save(): Promise<void> { return null; }
 	set(setter: any) { }
 	toObject(): any { }
 	static modelName: string;

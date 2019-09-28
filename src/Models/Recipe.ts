@@ -41,5 +41,5 @@ export class Recipe extends BaseModel {
     allowedViewers: { _id: string }[];
 }
 
-exports.Ingredient = model("r_Ingredient", ingredientSchema);
-exports.Recipe = model("r_Recipe", recipeSchema);
+exports.Ingredient = model("Ingredient", ingredientSchema);
+exports.Recipe = model("Recipe", recipeSchema);

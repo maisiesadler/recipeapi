@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "connect-mongodb-session": "2.0.3",
+    "connect-mongo": "3.0.0",
     "express": "4.16.3",
     "express-session": "1.15.6",
     "mongodb": "3.1.6",

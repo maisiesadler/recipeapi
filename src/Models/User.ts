@@ -25,4 +25,4 @@ userSchema.plugin(passportLocalMongoose);
 
 // userSchema.add({ users: [Schema.Types.ObjectId] })
 
-exports.User = model("r_User", userSchema);
+exports.User = model("User", userSchema);

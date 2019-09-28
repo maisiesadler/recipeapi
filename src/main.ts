@@ -4,9 +4,11 @@ import { Routes } from "./Routes";
 import { Express, Request, Response, NextFunction } from './express';
 import { UiRoutes } from './ui';
 
+const connectionstring = process.env.connectionstring;
+
 const app = Express.App();
 
-const authed = new Authenticate(app);
+const authed = new Authenticate(app, connectionstring);
 
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -23,7 +25,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use('/api', authed.loginRoutes());
 app.use('/ui', UiRoutes.createRoutes())
 
-DbApi.connect()
+DbApi.connect(connectionstring)
     .then(() => {
         app.use('/api', Routes.createRoutes());
         app.use(async (err, req, res, next) => {
