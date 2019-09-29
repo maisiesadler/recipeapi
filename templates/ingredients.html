@@ -1,14 +1,5 @@
 <div class="row">
     <div class="col-lg-12">
-        <div class="input-group">
-            <input type="text" id="search-ingredient" class="form-control" placeholder="Search for..."
-                autocomplete="off">
-            <span class="input-group-btn">
-                <button class="btn btn-default" type="button">Go!</button>
-            </span>
-        </div>
-    </div>
-    <div class="col-lg-12">
         <div>
             <ul class="nav nav-tabs" role="tablist">
                 <for each="category">
@@ -21,6 +12,9 @@
                     </a>
                 </li>
             </ul>
+            <div class="l-picker">
+                [[letterPicker]]
+            </div>
             <div class="tab-content">
                 <for each="category">
                     <div role="tabpanel" class="tab-pane {{_idx == 0 ? 'active' : 'nan'}}" id="{{_id}}">
@@ -28,7 +22,7 @@
                             <ul class="list-group"></ul>
                             <div id="no-results-{{_id}}" class="d-none">
                                 <div class="add-new-result">
-                                    No matches - click to add
+                                    No matches
                                 </div>
                             </div>
                         </div>
@@ -53,7 +47,6 @@
 
         const $searchResults = $('#search-results');
         const $addNewResult = $('.add-new-result');
-        const $ingredientInput = $('#search-ingredient');
         const $addCategoryGroup = $('#add-category-group');
         const $selectedCategory = $('#selected-category');
 
@@ -66,6 +59,7 @@
 
         let currentResults = [];
         let selectedCategory = 'all'
+        let selectedLetter = '';
 
         function rebuildPanel() {
             const $panel = $($(`[role=tabpanel]#${selectedCategory}`)[0]);
@@ -92,8 +86,7 @@
 
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
             selectedCategory = e.target.getAttribute('aria-controls');
-            const ingredient = $ingredientInput.val();
-            search(ingredient)
+            search('^' + selectedLetter)
                 .then(results => setResults(results))
                 .catch(err => console.error(err));
         })
@@ -148,14 +141,22 @@
         search('')
             .then(results => setResults(results))
             .catch(err => console.error(err));
-        const debouncedSearch = createDebounce(250)
-        $ingredientInput.keyup(async key => {
-            debouncedSearch(() => {
-                const ingredient = $ingredientInput.val();
-                search(ingredient)
-                    .then(results => setResults(results))
-                    .catch(err => console.error(err));
-            })
+
+        const $lpicker = $('.l-picker')
+        $lpicker.on('letter-clicked', function (e) {
+            let letter = e.letter
+            if (e.letter === selectedLetter) {
+                $lpicker.find(`[letter="${selectedLetter}"]`).removeClass('btn-info')
+                selectedLetter = '';
+                letter = '';
+            } else {
+                $lpicker.find(`[letter="${selectedLetter}"]`).removeClass('btn-info')
+                selectedLetter = letter;
+                $lpicker.find(`[letter="${selectedLetter}"]`).addClass('btn-info')
+            }
+            search('^' + letter)
+                .then(results => setResults(results))
+                .catch(err => console.error(err));
         })
     })
 </script>

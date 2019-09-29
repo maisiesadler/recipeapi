@@ -1,0 +1,33 @@
+<div class="letter-picker-container">
+    <div class="btn-group letter-picker-container-inner">
+        <for each="letters">
+            <button class="btn letter" letter="{{val}}">{{val}}</button>
+        </for>
+    </div>
+</div>
+
+<script>
+    $(document).ready(() => {
+        const $container = $('.letter-picker-container');
+        $container
+            .find('.letter')
+            .click(e => {
+                const letter = e.target.getAttribute('letter');
+                const ev = new $.Event('letter-clicked', { letter })
+                $container.trigger(ev);
+            })
+    });
+</script>
+
+<style>
+    .letter-picker-container {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: scroll;
+    }
+
+    .letter-picker-container-inner {
+        width: auto;
+        display: flex;
+    }
+</style>

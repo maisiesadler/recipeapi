@@ -35,10 +35,18 @@ export class UiRoutes {
             return TemplateParser.Parse(content, { category })
         }
 
+        async function letterPicker(): Promise<string> {
+            let content = await Fs.readFile('templates/letterpicker.html')
+            const letters = 'abcdefghijklmnopqrstuvwxyz'.split('').map(val => ({ val }));
+            return TemplateParser.Parse(content, { letters })
+        }
+
         async function templatereplacer(name: string): Promise<string> {
             switch (name) {
                 case 'ingredients':
                     return await ingredientSelector();
+                case 'letterPicker':
+                    return await letterPicker();
             }
             const file = `templates/${name}.html`;
             const exist = await Fs.exists(file);
