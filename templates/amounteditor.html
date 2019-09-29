@@ -16,7 +16,7 @@
             $('#update-amount-{{_idx}}').removeClass('d-none');
         })
         $('#update-amount-{{_idx}}').click(e => {
-            const ev = new $.Event('amountupdated', { detail: 'sndfo' })
+            const ev = new $.Event('amountupdated')
             $(e.target).trigger(ev);
         })
     });

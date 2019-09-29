@@ -11,6 +11,20 @@
                 timeout = setTimeout(func, wait);
             };
         }
+
+        function savePageScroll() {
+            var page_y = document.getElementsByTagName("body")[0].scrollTop;
+            window.sessionStorage.setItem('page_y', page_y);
+            window.location = window.location;
+        }
+
+        function reloadPageScroll() {
+            const page_y = window.sessionStorage.getItem('page_y');
+            if (page_y !== null) {
+                document.getElementsByTagName("body")[0].scrollTop = page_y;
+            }
+            window.sessionStorage.setItem('page_y', null);
+        }
     </script>
 
     <link rel="stylesheet" type="text/css" href="/ui/static/freelancer.min.css" crossorigin="anonymous">
@@ -26,11 +40,7 @@
 
     <script>
         window.onload = function () {
-            const page_y = window.sessionStorage.getItem('page_y');
-            if (page_y !== null) {
-                document.getElementsByTagName("body")[0].scrollTop = page_y;
-            }
-            window.sessionStorage.setItem('page_y', null);
+            reloadPageScroll();
         }
     </script>
 </head>

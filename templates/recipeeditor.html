@@ -1,5 +1,5 @@
 <div class="row">
-    <div class="col-lg-6">
+    <div class="col-lg-12">
         <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">
             <div class="d-inline-block">{{name}}</div>
             <div class="dropdown d-inline-block">
@@ -60,6 +60,7 @@
             const ingredientName = e.target.getAttribute('remove-ing');
             getrecipe(id)
                 .then(recipe => {
+                    savePageScroll();
                     recipe.ingredients = recipe.ingredients.filter(i => i.name !== ingredientName);
                     update(id, recipe)
                         .then(_ => window.location = window.location)
@@ -70,6 +71,8 @@
 
         $('.amounteditor')
             .on('amountupdated', function (e) {
+                savePageScroll();
+
                 const $editor = $(e.currentTarget);
                 const idx = $editor.attr('idx');
                 const amount = $editor.find('input.amount').val()
@@ -78,11 +81,6 @@
                     .then(recipe => {
                         recipe.ingredients[idx].amount = amount;
                         update(id, recipe)
-                            .then(_ => {
-                                var page_y = document.getElementsByTagName("body")[0].scrollTop
-                                window.sessionStorage.setItem('page_y', page_y)
-                                window.location = window.location
-                            })
                             .catch(x => console.error(x));
                     })
                     .catch(x => console.error(x));
@@ -93,13 +91,13 @@
             const userId = $target.attr('sharewith')
 
             PromiseHttp.post('/api/recipe/share', JSON.stringify({ userId, recipeId: id }))
-                .then(data => { })
                 .catch(err => console.error(err));
         })
 
         document.addEventListener('yr.ingredient', function (e) {
             const ingredient = e.detail
             if (!!ingredient && !!ingredient.name && !!ingredient._id) {
+                savePageScroll();
                 createnew(id, ingredient.name, ingredient._id)
                     .then(_ => window.location = window.location)
                     .catch(err => console.error(err));
