@@ -38,8 +38,10 @@ export class TemplateParser {
         while (next !== null) {
             if (next[0].indexOf('=') > 0) {
                 // is expression
-                const parts = next[1].split(/[= ]/).filter(x => !!x);
-                let s = next[1]
+                const { replaced, tokens } = TemplateParser.replaceStrings(next[1]);
+                const parts = replaced.split(/[= ]/).filter(x => !!x);
+                let s = replaced
+
                 parts.forEach(part => {
                     if (/^[A-Za-z_]+$/.exec(part) !== null) {
                         // todo: this won't work if the variable == string name
@@ -50,6 +52,8 @@ export class TemplateParser {
                         s = s.replace(part, val);
                     }
                 })
+                s = TemplateParser.replaceStringsBack(s, tokens);
+
                 let evaled = 'not evaled';
                 try {
                     evaled = eval(s)
@@ -70,11 +74,48 @@ export class TemplateParser {
         return template;
     }
 
+    private static replaceStrings(o: string): { replaced: string, tokens: { [key: string]: string } } {
+        let next = TemplateParser.findStrings(o);
+        let num = 0;
+        const tokens = {}
+        while (next !== null) {
+            const token = `__${num++}__`;
+            tokens[token] = next[0];
+            o = o.replace(next[0], token);
+            next = TemplateParser.findStrings(o);
+        }
+
+        return { replaced: o, tokens };
+    }
+
+    private static replaceStringsBack(o: string, tokens: { [key: string]: string }): string {
+        let next = TemplateParser.findTokens(o);
+        while (next !== null) {
+            const val = tokens[next[0]];
+            if (typeof val === 'undefined') {
+                console.error('could not find value for token', next[0])
+                return '';
+            }
+            o = o.replace(next[0], val);
+            next = TemplateParser.findTokens(o);
+        }
+
+        return o;
+    }
+
     private static findNext(o: string): RegExpExecArray {
         return /{{ *([\w='_?:! ]+) *}}/g.exec(o);
     }
 
     private static findFors(o: string): RegExpExecArray {
         return /<for([^>]*)>(.*?)<\/for>/s.exec(o);
+    }
+
+    private static findStrings(o: string): RegExpExecArray {
+        return /'(.*?)'/s.exec(o);
+    }
+
+    private static findTokens(o: string): RegExpExecArray {
+        return /__(.*?)__/s.exec(o);
     }
 }
