@@ -81,6 +81,7 @@
                     .then(recipe => {
                         recipe.ingredients[idx].amount = amount;
                         update(id, recipe)
+                        .then(_ => window.location = window.location)
                             .catch(x => console.error(x));
                     })
                     .catch(x => console.error(x));
