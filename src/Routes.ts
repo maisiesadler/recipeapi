@@ -39,12 +39,16 @@ export class Routes {
 
 		const ingredient = Express.Router();
 		MegaApi.getWithQuery(ingredient, Ingredient, req => {
+			const query: any = {};
 			if (!!req.query.sw) {
-				const query = { name: {} }
+				query.name = {};
 				query.name['$regex'] = req.query.sw;
-				return query;
+				query.name['$options'] = 'i'
 			}
-			return {};
+			if (!!req.query.category) {
+				query.category = req.query.category;
+			}
+			return query;
 		});
 		MegaApi.postWithData<Ingredient>(ingredient, Ingredient, (req, model) => {
 			model.addedBy = req.user._id;

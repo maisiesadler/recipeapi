@@ -65,14 +65,14 @@
         }
 
         let currentResults = [];
-        let selectedTab = 'all'
+        let selectedCategory = 'all'
 
         function rebuildPanel() {
-            const $panel = $($(`[role=tabpanel]#${selectedTab}`)[0]);
+            const $panel = $($(`[role=tabpanel]#${selectedCategory}`)[0]);
             const ul = $panel.find('ul')
             $(ul).empty();
 
-            const $noResults = $panel.find('#no-results-' + selectedTab)
+            const $noResults = $panel.find('#no-results-' + selectedCategory)
 
             if (currentResults.length === 0) {
                 $noResults.removeClass('d-none')
@@ -81,25 +81,30 @@
             }
 
             currentResults.forEach(result => {
-                if (selectedTab === 'all' || result.category === selectedTab) {
-                    const li = createListGroupItem(result.name);
-                    li.addEventListener('click', e => {
-                        const ev = new CustomEvent('yr.ingredient', { detail: result })
-                        document.dispatchEvent(ev)
-                    })
-                    ul.append(li)
-                }
+                const li = createListGroupItem(result.name);
+                li.addEventListener('click', e => {
+                    const ev = new CustomEvent('yr.ingredient', { detail: result })
+                    document.dispatchEvent(ev)
+                })
+                ul.append(li)
             })
         }
 
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-            selectedTab = e.target.getAttribute('aria-controls');
-            rebuildPanel();
+            selectedCategory = e.target.getAttribute('aria-controls');
+            const ingredient = $ingredientInput.val();
+            search(ingredient)
+                .then(results => setResults(results))
+                .catch(err => console.error(err));
         })
 
         function search(text) {
             return new Promise((resolve, reject) => {
-                $.get('/api/ingredient?sw=' + text)
+                let query = 'sw=' + text;
+                if (selectedCategory !== 'all') {
+                    query += '&category=' + selectedCategory;
+                }
+                $.get('/api/ingredient?' + query)
                     .then((data, status) => {
                         resolve(data);
                     }, err => reject(err))
@@ -118,11 +123,11 @@
                 console.error('no ingredient')
                 return;
             }
-            if (selectedTab === 'all') {
+            if (selectedCategory === 'all') {
                 console.error('cannot do all yet')
                 return;
             }
-            $.post('/api/ingredient', JSON.stringify({ name: ingredient, category: selectedTab }))
+            $.post('/api/ingredient', JSON.stringify({ name: ingredient, category: selectedCategory }))
                 .then((data, status) => {
                     search(ingredient)
                         .then(results => setResults(results))
