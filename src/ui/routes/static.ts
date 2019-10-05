@@ -17,12 +17,14 @@ export class StaticRoutes {
         const router = Express.Router();
 
         router.get('/*', async (req: Request, res: Response) => {
-            const file = `templates/static${req.url}`;
-            const extensionmatch = /\.(\w\+)^/.exec(file)
+            // ignore query string
+            const path = /^([^?]+)/.exec(req.url)
+            const file = `templates/static${path[1]}`;
+            const extensionmatch = /\.(\w+)$/.exec(file)
             const extension = extensionmatch === null ? 'txt' : extensionmatch[1];
 
-            var s = fs.createReadStream(file);
-            var type = mime[extension] || 'text/plain';
+            const s = fs.createReadStream(file);
+            const type = mime[extension] || 'text/plain';
             s.on('open', function () {
                 res.set('Content-Type', type);
                 s.pipe(res);

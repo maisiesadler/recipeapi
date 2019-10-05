@@ -1,38 +1,29 @@
 <div class="row">
     <div class="col-lg-12">
         <div>
-            <ul class="nav nav-tabs" role="tablist">
-                <for each="category">
-                    <li role="presentation" class="{{_idx == 0 ? 'active' : ''}}"><a href="#{{_id}}"
-                            aria-controls="{{_id}}" role="tab" data-toggle="tab">{{name}}</a></li>
-                </for>
-                <li role="presentation">
-                    <a href="#add-category" role="tab" aria-controls="add-category" data-toggle="tab">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                    </a>
-                </li>
-            </ul>
+            <div class="category-container">
+                <div class="btn-group category-container-inner">
+                    <for each="category">
+                        <button class="btn category" category-id="{{_id}}">{{name}}</button>
+                    </for>
+                    <button id="add-category-btn" class="btn category ion-plus"></button>
+                </div>
+            </div>
             <div class="l-picker">
                 [[letterPicker]]
             </div>
-            <div class="tab-content">
-                <for each="category">
-                    <div role="tabpanel" class="tab-pane {{_idx == 0 ? 'active' : 'nan'}}" id="{{_id}}">
-                        <div class="well">
-                            <ul class="list-group"></ul>
-                            <div id="no-results-{{_id}}" class="d-none">
-                                No results - select category to add
-                            </div>
-                        </div>
+            <div class="tab-content" style="min-height: 400px">
+                <div id="ingredient-result-panel" class="well">
+                    <ul class="list-group"></ul>
+                    <div id="no-results-{{_id}}" class="d-none">
+                        No results - select category to add
                     </div>
-                </for>
-                <div role="tabpanel" class="tab-pane" id="add-category">
-                    <div class="input-group" id="add-category-group">
-                        <input type="text" class="form-control" placeholder="New category">
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" type="button">Add</button>
-                        </span>
-                    </div>
+                </div>
+                <div class="input-group d-none" id="add-category-group">
+                    <input type="text" class="form-control" placeholder="New category">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button">Add</button>
+                    </span>
                 </div>
             </div>
 
@@ -43,9 +34,12 @@
 <script type="text/javascript">
     $(document).ready(() => {
 
+        const $categoryButtons = $('[category-id]');
         const $searchResults = $('#search-results');
+        const $addCategoryBtn = $('#add-category-btn');
         const $addCategoryGroup = $('#add-category-group');
         const $selectedCategory = $('#selected-category');
+        const $ingredientResultPanel = $('#ingredient-result-panel');
 
         function createListGroupItem(name) {
             const li = document.createElement('li');
@@ -59,11 +53,10 @@
         let selectedLetter = '';
 
         function rebuildPanel() {
-            const $panel = $($(`[role=tabpanel]#${selectedCategory}`)[0]);
-            const ul = $panel.find('ul')
+            const ul = $ingredientResultPanel.find('ul')
             $(ul).empty();
 
-            const $noResults = $panel.find('#no-results-' + selectedCategory)
+            const $noResults = $ingredientResultPanel.find('#no-results-' + selectedCategory)
 
             if (currentResults.length === 0) {
                 if (selectedCategory !== 'all') {
@@ -105,12 +98,20 @@
             })
         }
 
-        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-            selectedCategory = e.target.getAttribute('aria-controls');
+        $categoryButtons.on('click', function (e) {
+            $addCategoryGroup.addClass('d-none');
+            $ingredientResultPanel.removeClass('d-none');
+            if (selectedCategory) {
+                $(`[category-id=${selectedCategory}]`).removeClass('btn-secondary');
+            }
+            selectedCategory = e.target.getAttribute('category-id');
+            $(e.target).addClass('btn-secondary');
             search('^' + selectedLetter)
                 .then(results => setResults(results))
                 .catch(err => console.error(err));
-        })
+        });
+
+        $categoryButtons[0].click();
 
         function search(text) {
             return new Promise((resolve, reject) => {
@@ -130,6 +131,15 @@
             currentResults = results;
             rebuildPanel();
         }
+
+        $addCategoryBtn.click(() => {
+            if (selectedCategory) {
+                $(`[category-id=${selectedCategory}]`).removeClass('btn-secondary');
+                selectedCategory = '';
+            }
+            $addCategoryGroup.removeClass('d-none');
+            $ingredientResultPanel.addClass('d-none');
+        })
 
         $addCategoryGroup.find('.btn')
             .click(() => {
@@ -163,3 +173,16 @@
         })
     })
 </script>
+
+<style>
+    .category-container {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: scroll;
+    }
+
+    .category-container-inner {
+        width: auto;
+        display: flex;
+    }
+</style>
