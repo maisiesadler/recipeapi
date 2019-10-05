@@ -1,39 +1,48 @@
-<div class="row">
-    <div class="col-lg-12">
-        <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">
-            <div class="d-inline-block">{{name}}</div>
-            <div class="dropdown d-inline-block">
-                <button class="btn btn-default dropdown-toggle" type="button" id="shareWithUsers" data-toggle="dropdown"
-                    aria-haspopup="true" aria-expanded="true">
-                    Share with
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="shareWithUsers">
-                    <for each="users">
-                        <li sharewith="{{_id}}">{{username}}</li>
-                    </for>
-                </ul>
-            </div>
-        </h2>
+<div class="section">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-section-heading text-center text-uppercase text-secondary mb-0">
+                <div class="d-inline-block">{{name}}</div>
+                <div class="dropdown d-inline-block">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="shareWithUsers"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        Share with
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="shareWithUsers">
+                        <for each="users">
+                            <li sharewith="{{_id}}">{{username}}</li>
+                        </for>
+                    </ul>
+                </div>
+            </h1>
+        </div>
+    </div>
+</div>
 
-        <div class="panel panel-default">
-            <div class="panel-heading">Ingredients</div>
-            <div class="panel-body">
-                <div class="list-group">
-                    <for each="ingredients">
-                        <div class="list-group-item d-flex justify-content-between">
-                            <div class="amounteditor" idx="{{_idx}}" style="line-height: 30px">
-                                [[amounteditor]]
+<div class="section bg-light">
+    <div class="row">
+        <div class="col-lg-6 col-md-12">
+            <div class="container">
+                <h2 class="text-uppercase">Ingredients</h2>
+                <div class="panel-body">
+                    <div class="list-group">
+                        <for each="ingredients">
+                            <div class="list-group-item d-flex justify-content-between">
+                                <div class="amounteditor" idx="{{_idx}}" style="line-height: 30px">
+                                    [[amounteditor]]
+                                </div>
+                                <div class="flex-grow-1" style="line-height: 30px">{{name}}</div>
+                                <button remove-ing="{{name}}" class="btn btn-default btn-sm ion-remove"
+                                    aria-hidden="true"></button>
                             </div>
-                            <div class="flex-grow-1" style="line-height: 30px">{{name}}</div>
-                            <button remove-ing="{{name}}" class="btn btn-default btn-sm ion-remove"
-                                aria-hidden="true"></button>
-                        </div>
-                    </for>
+                        </for>
+                    </div>
                 </div>
             </div>
         </div>
-
-        [[ingredients]]
+        <div class="col-lg-6 col-md-12">
+            [[ingredients]]
+        </div>
     </div>
 </div>
 
@@ -81,7 +90,7 @@
                     .then(recipe => {
                         recipe.ingredients[idx].amount = amount;
                         update(id, recipe)
-                        .then(_ => window.location = window.location)
+                            .then(_ => window.location = window.location)
                             .catch(x => console.error(x));
                     })
                     .catch(x => console.error(x));
