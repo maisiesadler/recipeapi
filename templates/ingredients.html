@@ -14,9 +14,6 @@
     <div class="tab-content" style="min-height: 400px">
         <div id="ingredient-result-panel" class="well">
             <ul class="list-group"></ul>
-            <div id="no-results-{{_id}}" class="d-none">
-                No results - select category to add
-            </div>
         </div>
         <div class="input-group d-none" id="add-category-group">
             <input type="text" class="form-control" placeholder="New category">
@@ -53,38 +50,6 @@
             const ul = $ingredientResultPanel.find('ul')
             $(ul).empty();
 
-            const $noResults = $ingredientResultPanel.find('#no-results-' + selectedCategory)
-
-            if (currentResults.length === 0) {
-                if (selectedCategory !== 'all') {
-                    $noResults.empty();
-                    const div = document.createElement('div')
-                    div.textContent = 'Add new ingredient...'
-                    $noResults.append(div);
-                    const input = document.createElement('input')
-                    input.placeholder = 'add new'
-                    input.value = selectedLetter.toUpperCase();
-                    input.addEventListener('keyup', keyevent => {
-                        if (keyevent.keyCode === 13) {
-                            if (!!input.value) {
-                                const ingredient = input.value;
-                                $.post('/api/ingredient', JSON.stringify({ name: ingredient, category: selectedCategory }))
-                                    .then((data, status) => {
-                                        search(ingredient)
-                                            .then(results => setResults(results))
-                                            .catch(err => console.error(err));
-                                    }, err => console.error(err))
-                            }
-                        }
-                    });
-                    $noResults.append(input);
-                    $(input).focus();
-                }
-                $noResults.removeClass('d-none')
-            } else {
-                $noResults.addClass('d-none')
-            }
-
             currentResults.forEach(result => {
                 const li = createListGroupItem(result.name);
                 li.addEventListener('click', e => {
@@ -93,6 +58,39 @@
                 })
                 ul.append(li)
             })
+
+            const li = createListGroupItem('Add new ingredient');
+            li.addEventListener('click', e => {
+                if (!!li.hasInput) {
+                    return;
+                }
+                li.hasInput = true;
+                li.textContent = '';
+                const input = document.createElement('input')
+                input.placeholder = 'add new'
+                input.value = selectedLetter.toUpperCase();
+                input.addEventListener('keyup', keyevent => {
+                    if (keyevent.keyCode === 13) {
+                        if (selectedCategory === 'all') {
+                            alert('please select category first')
+                            return;
+                        }
+                        if (!!input.value) {
+                            const ingredient = input.value;
+                            $.post('/api/ingredient', JSON.stringify({ name: ingredient, category: selectedCategory }))
+                                .then((data, status) => {
+                                    search(ingredient)
+                                        .then(results => setResults(results))
+                                        .catch(err => console.error(err));
+                                }, err => console.error(err))
+                        }
+                    }
+                });
+                li.append(input)
+                input.focus();
+            });
+
+            ul.append(li)
         }
 
         $categoryButtons.on('click', function (e) {
